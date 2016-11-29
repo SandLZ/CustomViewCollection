@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.zhy.autolayout.AutoRelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context=".module.main.MainActivity">
+
+    <me.sandlz.customviewcollection.widget.CustomArrowImage
+        android:id="@+id/image_custom_view"
+        android:layout_width="180px"
+        android:layout_height="180px"
+        android:src="@mipmap/favicon200"
+        app:arrowSrc="@mipmap/im_icon_common"
+        app:position="top_right"
+        app:fixRate="1.5"
+        app:allowRotation="true"
+        android:layout_centerInParent="true"/>
+</com.zhy.autolayout.AutoRelativeLayout>
