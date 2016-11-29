@@ -1,15 +1,19 @@
 package me.sandlz.customviewcollection.module.main;
 
 import android.Manifest;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 
 import com.tbruyelle.rxpermissions.RxPermissions;
 
 import org.xutils.view.annotation.ContentView;
+import org.xutils.view.annotation.Event;
 
 import me.sandlz.customviewcollection.R;
 import me.sandlz.customviewcollection.base.BaseActivity;
+import me.sandlz.customviewcollection.module.image.CustomImageArrowActivity;
 import rx.functions.Action1;
 
 @ContentView(R.layout.activity_main)
@@ -33,5 +37,12 @@ public class MainActivity extends BaseActivity {
                     }
                 });
 
+    }
+
+    @Event(R.id.main_image_btn)
+    private void image(View view) {
+        Intent intent = new Intent();
+        intent.setClass(this, CustomImageArrowActivity.class);
+        startActivity(intent);
     }
 }
