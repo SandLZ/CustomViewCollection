@@ -3,6 +3,9 @@
     <declare-styleable name="CustomArrowImage">
         <attr name="fixRate" format="float" />
         <attr name="arrowSrc" format="integer" />
+        <attr name="imgSrcs"  format="reference"/>
+        <attr name="borderWidth" format="integer" />
+        <attr name="borderColor" format="color" />
         <attr name="allowRotation" format="boolean" />
         <attr name="position" format="enum">
             <enum name="top_left" value="0"/>

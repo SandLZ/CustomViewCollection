@@ -5,6 +5,7 @@ import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
@@ -34,12 +35,19 @@ public class CustomArrowImage extends ImageView {
     private Paint paint ;
     // 角图片资源ID
     private int arrowId;
+    private int oldArrowId;
     // 角图片缩放比例
     private float fixRate;
     // 角图片位置 (左上0 右上1 左下2 右下3)
     private int position;
     // 旋转
     private boolean allowRotation;
+    // 边框
+    private int mBorderThickness = 2;
+    private int radius = 0;
+    private int defaultWidth = 0;
+    private int defaultHeight = 0;
+    private int color;
 
 
 
@@ -52,6 +60,7 @@ public class CustomArrowImage extends ImageView {
         super(context, attrs);
         paint = new Paint();
         // 获取自定义属性值
+
         TypedArray a = context.getTheme().obtainStyledAttributes(
                 attrs, R.styleable.CustomArrowImage, 0, 0);
         try {
@@ -59,8 +68,13 @@ public class CustomArrowImage extends ImageView {
             int position = a.getInteger(R.styleable.CustomArrowImage_position,1);
             float fixRate  = a.getFloat(R.styleable.CustomArrowImage_fixRate,1);
             boolean allowRotation = a.getBoolean(R.styleable.CustomArrowImage_allowRotation,false);
+            int borderWidth = a.getInt(R.styleable.CustomArrowImage_borderWidth,0);
+            int color = a.getColor(R.styleable.CustomArrowImage_borderColor,Color.BLUE);
+            this.mBorderThickness = borderWidth;
+            this.color = color;
             this.position = position;
             this.arrowId = arrowId;
+            this.oldArrowId = arrowId;
             this.fixRate = fixRate;
             this.allowRotation = allowRotation;
         } finally {
@@ -72,9 +86,21 @@ public class CustomArrowImage extends ImageView {
         super(context, attrs, defStyleAttr);
     }
 
-
     @Override
     protected void onDraw(Canvas canvas) {
+        if (defaultWidth == 0) {
+            defaultWidth = getWidth();
+        }
+        if (defaultHeight == 0) {
+            defaultHeight = getHeight();
+        }
+        // 画边框
+        radius = (defaultWidth < defaultHeight ? defaultWidth
+                : defaultHeight) / 2 - 2 * mBorderThickness;
+        if (mBorderThickness > 0) {
+            drawCircleBorder(canvas, radius + mBorderThickness / 2,
+                    color);
+        }
         Drawable drawable = getDrawable();
         if (null != drawable) {
             Bitmap bitmap = ((BitmapDrawable) drawable).getBitmap();
@@ -143,38 +169,121 @@ public class CustomArrowImage extends ImageView {
                         }
                         break;
                 }
+                // 角落图形
                 canvas.drawBitmap(mBitmap, rectSrcA,rectDestA, paint);
             }
-            canvas.drawBitmap(b, rectSrc, rectDest, paint);
+            // 圆形图形
+//            canvas.drawBitmap(b, rectSrc, rectDest, paint);
+            canvas.drawBitmap(b, defaultWidth / 2 - radius, defaultHeight
+                    / 2 - radius, null);
         } else {
             super.onDraw(canvas);
         }
     }
 
+    public void setArrowVisibility(boolean hide) {
+        if (hide) {
+            arrowId = 0;
+        }else {
+            arrowId = oldArrowId;
+        }
+        invalidate();
+    }
+
+    public void setArrowResource(int resourceId) {
+        arrowId = resourceId;
+        invalidate();
+    }
+
     /**
-     * 获取圆形图片方法
-     * @param bitmap
+     * 获取圆形图片
+     * @param bmp
      * @param pixels
      * @return Bitmap
      * @author caizhiming
      */
-    private Bitmap getCircleBitmap(Bitmap bitmap, int pixels) {
-        Bitmap output = Bitmap.createBitmap(bitmap.getWidth(),
-                bitmap.getHeight(), Bitmap.Config.ARGB_8888);
+    private Bitmap getCircleBitmap(Bitmap bmp, int pixels) {
+        Bitmap scaledSrcBmp;
+        int diameter = radius * 2;
+
+        // 为了防止宽高不相等，造成圆形图片变形，因此截取长方形中处于中间位置最大的正方形图片
+        int bmpWidth = bmp.getWidth();
+        int bmpHeight = bmp.getHeight();
+        int squareWidth = 0, squareHeight = 0;
+        int x = 0, y = 0;
+        Bitmap squareBitmap;
+        if (bmpHeight > bmpWidth) {// 高大于宽
+            squareWidth = squareHeight = bmpWidth;
+            x = 0;
+            y = (bmpHeight - bmpWidth) / 2;
+            // 截取正方形图片
+            squareBitmap = Bitmap.createBitmap(bmp, x, y, squareWidth,
+                    squareHeight);
+        } else if (bmpHeight < bmpWidth) {// 宽大于高
+            squareWidth = squareHeight = bmpHeight;
+            x = (bmpWidth - bmpHeight) / 2;
+            y = 0;
+            squareBitmap = Bitmap.createBitmap(bmp, x, y, squareWidth,
+                    squareHeight);
+        } else {
+            squareBitmap = bmp;
+        }
+
+        if (squareBitmap.getWidth() != diameter
+                || squareBitmap.getHeight() != diameter) {
+            scaledSrcBmp = Bitmap.createScaledBitmap(squareBitmap, diameter,
+                    diameter, true);
+
+        } else {
+            scaledSrcBmp = squareBitmap;
+        }
+        Bitmap output = Bitmap.createBitmap(scaledSrcBmp.getWidth(),
+                scaledSrcBmp.getHeight(), Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(output);
 
-        final int color = 0xff424242;
+        Paint paint = new Paint();
+        Rect rect = new Rect(0, 0, scaledSrcBmp.getWidth(),
+                scaledSrcBmp.getHeight());
 
-        final Rect rect = new Rect(0, 0, bitmap.getWidth(), bitmap.getHeight());
         paint.setAntiAlias(true);
+        paint.setFilterBitmap(true);
+        paint.setDither(true);
         canvas.drawARGB(0, 0, 0, 0);
-        paint.setColor(color);
-        int x = bitmap.getWidth();
-
-        canvas.drawCircle(x / 2, x / 2, x / 2, paint);
+        canvas.drawCircle(scaledSrcBmp.getWidth() / 2,
+                scaledSrcBmp.getHeight() / 2, scaledSrcBmp.getWidth() / 2,
+                paint);
         paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_IN));
-        canvas.drawBitmap(bitmap, rect, rect, paint);
+        canvas.drawBitmap(scaledSrcBmp, rect, rect, paint);
         return output;
+//        Bitmap output = Bitmap.createBitmap(bitmap.getWidth(),
+//                bitmap.getHeight(), Bitmap.Config.ARGB_8888);
+//        Canvas canvas = new Canvas(output);
+//
+//        final int color = 0xff424242;
+//
+//        final Rect rect = new Rect(0, 0, bitmap.getWidth(), bitmap.getHeight());
+//        paint.setAntiAlias(true);
+//        canvas.drawARGB(0, 0, 0, 0);
+//        paint.setColor(color);
+//        int x = bitmap.getWidth();
+//        canvas.drawCircle(x / 2, x / 2, x / 2, paint);
+//        paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_IN));
+//        canvas.drawBitmap(bitmap, rect, rect, paint);
+//        return output;
+    }
+
+    private void drawCircleBorder(Canvas canvas, int radius, int color) {
+        Paint paint = new Paint();
+        /* 去锯齿 */
+        paint.setAntiAlias(true);
+        paint.setFilterBitmap(true);
+        paint.setDither(true);
+        paint.setColor(color);
+        /* 设置paint的　style　为STROKE：空心 */
+        paint.setStyle(Paint.Style.STROKE);
+        /* 设置paint的外框宽度 */
+        paint.setStrokeWidth(mBorderThickness);
+        canvas.drawCircle(defaultWidth / 2, defaultHeight / 2, radius, paint);
     }
 
     /**

@@ -17,7 +17,7 @@
         android:src="@mipmap/favicon200"
         app:arrowSrc="@mipmap/im_icon_common"
         app:position="top_left"
-        app:fixRate="1.2"
+        app:fixRate="2.5"
         app:allowRotation="true" />
     <me.sandlz.customviewcollection.widget.CustomArrowImage
         android:id="@+id/image_custom_view2"
@@ -26,9 +26,10 @@
         android:layout_marginTop="20px"
         android:layout_below="@id/image_custom_view"
         android:src="@mipmap/favicon200"
-        app:arrowSrc="@mipmap/im_icon_common"
         app:position="bottom_left"
-        app:fixRate="1.2"
+        app:borderWidth="2"
+        app:borderColor="#AAD3EE"
+        app:fixRate="2.5"
         app:allowRotation="true" />
     <me.sandlz.customviewcollection.widget.CustomArrowImage
         android:id="@+id/image_custom_view3"
@@ -38,8 +39,9 @@
         android:layout_toRightOf="@id/image_custom_view"
         android:src="@mipmap/favicon200"
         app:arrowSrc="@mipmap/im_icon_common"
+        app:borderWidth="0"
         app:position="top_right"
-        app:fixRate="1.2"
+        app:fixRate="2.5"
         app:allowRotation="true" />
     <me.sandlz.customviewcollection.widget.CustomArrowImage
         android:id="@+id/image_custom_view4"
@@ -52,7 +54,7 @@
         android:src="@mipmap/favicon200"
         app:arrowSrc="@mipmap/im_icon_common"
         app:position="bottom_right"
-        app:fixRate="1.2"
+        app:fixRate="2.5"
         app:allowRotation="true" />
 
 </com.zhy.autolayout.AutoRelativeLayout>
